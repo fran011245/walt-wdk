@@ -5,6 +5,11 @@
   "private": true,
   "license": "Apache-2.0",
   "author": "WaltWDK Contributors",
+  "homepage": "https://walt-wdk.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fran011245/walt-wdk.git"
+  },
   "type": "module",
   "scripts": {
     "build": "npm run build --workspaces --if-present",
