@@ -6,6 +6,7 @@
 import { WdkClient } from '@walt-wdk/core';
 import { getWalletMeta, getWalletSeed } from '../utils/wallet-store.js';
 import type { WdkNetwork } from '@walt-wdk/core';
+import { isValidNetwork } from '../utils/validation.js';
 
 // Contract addresses (mainnet) para balance de tokens — ejemplos por red
 const USDT_EVM = '0xdAC17F958D2ee523a2206206994597C13D831ec7'; // Ethereum USDT
@@ -38,6 +39,9 @@ export interface BalanceOutput {
 
 export async function getBalance(input: BalanceInput): Promise<BalanceOutput> {
   const meta = await getWalletMeta(input.name);
+  if (!isValidNetwork(meta.network)) {
+    throw new Error(`Unsupported network stored for wallet "${input.name}": ${meta.network}`);
+  }
   const seed = await getWalletSeed(input.name);
   const client = WdkClient.fromSeed(seed);
   try {

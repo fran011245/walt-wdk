@@ -45,11 +45,32 @@ export async function exportWallet(input: ExportWalletInput): Promise<ExportWall
   const seed = await getWalletSeed(input.name);
 
   if (input.format === 'seed') {
-    return {
+    const result: ExportWalletOutput = {
       success: true,
       seedPhrase: seed,
       warning: 'Store this phrase securely. Never share it. It will NOT be shown again in this session.',
     };
+    // Best-effort audit log via wdk-agent-guard if installed.
+    try {
+      const guard = await import('@walt-wdk/wdk-agent-guard');
+      if (typeof guard.logDecision === 'function') {
+        await guard.logDecision({
+          timestamp: new Date().toISOString(),
+          operation: 'export-seed',
+          amount: '0',
+          currency: 'N/A',
+          to: meta.address,
+          fromWallet: input.name,
+          approved: true,
+          reason: 'Seed export confirmed by user.',
+        });
+      }
+    } catch (e: any) {
+      if (e?.code !== 'ERR_MODULE_NOT_FOUND' && e?.code !== 'MODULE_NOT_FOUND') {
+        throw e;
+      }
+    }
+    return result;
   }
 
   // privateKey: WDK no expone getPrivateKey(); el usuario debe derivar desde la seed

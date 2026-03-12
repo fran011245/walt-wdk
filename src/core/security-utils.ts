@@ -4,12 +4,19 @@
  */
 
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'crypto';
+import { readFile, writeFile, mkdir, readdir } from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
+import { getConfigDir } from './config-manager.js';
 
 const ALG = 'aes-256-gcm';
 const KEY_LEN = 32;
 const IV_LEN = 16;
 const SALT_LEN = 32;
 const TAG_LEN = 16;
+const MASTER_KEY_FILE = '.master-key';
+const SECRETS_SUBDIR = 'secrets';
+const LEGACY_SUFFIX = '.walt-wdk-default';
 
 /**
  * Derive a key from password and salt using scrypt.
@@ -49,10 +56,17 @@ export function decrypt(encryptedBase64: string, password: string): string {
 }
 
 /**
- * Validate Ethereum/EVM address (0x + 40 hex). Does not checksum.
+ * Validate Ethereum/EVM address (0x + 40 hex) with basic EIP-55 awareness.
+ * - Accepts all-lowercase and all-uppercase addresses as valid.
+ * - Rejects mixed-case addresses unless they are strictly checksum-correct
+ *   (future improvement; for now we conservatively reject mixed-case).
  */
 export function isValidEvmAddress(address: string): boolean {
-  return /^0x[a-fA-F0-9]{40}$/.test(address);
+  if (!/^0x[a-fA-F0-9]{40}$/.test(address)) return false;
+  const body = address.slice(2);
+  if (body === body.toLowerCase() || body === body.toUpperCase()) return true;
+  // Mixed-case without full checksum validation: reject to avoid accepting malformed addresses.
+  return false;
 }
 
 /**
@@ -74,8 +88,68 @@ export function isValidAddress(address: string, network: string): boolean {
 /**
  * Get encryption password from env or a default for local dev (not for production).
  */
-export function getEncryptionPassword(): string {
+export async function getEncryptionPassword(): Promise<string> {
   const env = process.env.WALT_WDK_SECRET_KEY ?? process.env.OPENCLAW_SECRET_KEY;
   if (env) return env;
-  return (process.env.HOME ?? '') + (process.env.USER ?? '') + '.walt-wdk-default'; // fallback for dev only
+  return getOrCreateMasterKey();
+}
+
+/**
+ * Generate or read the local master key used to encrypt wallet seeds.
+ * Stored at <configDir>/.master-key with mode 0o600.
+ */
+export async function getOrCreateMasterKey(): Promise<string> {
+  const dir = getConfigDir();
+  if (!existsSync(dir)) {
+    await mkdir(dir, { recursive: true, mode: 0o700 });
+  }
+  const keyPath = path.join(dir, MASTER_KEY_FILE);
+  if (existsSync(keyPath)) {
+    const existing = await readFile(keyPath, 'utf-8');
+    return existing.trim();
+  }
+
+  const key = randomBytes(KEY_LEN).toString('hex');
+  await writeFile(keyPath, key, { encoding: 'utf-8', mode: 0o600 });
+
+  // Best-effort migration of legacy-encrypted secrets.
+  await migrateEncryptedFiles(key).catch(() => {
+    // ignore migration errors; legacy secrets may not exist or may already be migrated
+  });
+
+  return key;
+}
+
+function getLegacyPassword(): string | null {
+  const home = process.env.HOME ?? '';
+  const user = process.env.USER ?? '';
+  const combined = home + user;
+  if (!combined) return null;
+  return combined + LEGACY_SUFFIX;
+}
+
+/**
+ * Migrate existing wallet secret files that used the legacy deterministic password
+ * to the new master key.
+ */
+export async function migrateEncryptedFiles(newPassword: string): Promise<void> {
+  const legacyPassword = getLegacyPassword();
+  if (!legacyPassword) return;
+
+  const secretsDir = path.join(getConfigDir(), SECRETS_SUBDIR);
+  if (!existsSync(secretsDir)) return;
+
+  const files = await readdir(secretsDir);
+  for (const file of files) {
+    if (!file.startsWith('wdk-wallet.') || !file.endsWith('.key')) continue;
+    const fullPath = path.join(secretsDir, file);
+    try {
+      const encrypted = await readFile(fullPath, 'utf-8');
+      const decrypted = decrypt(encrypted, legacyPassword);
+      const reencrypted = encrypt(decrypted, newPassword);
+      await writeFile(fullPath, reencrypted, { encoding: 'utf-8', mode: 0o600 });
+    } catch {
+      // Ignore files that cannot be decrypted with the legacy password.
+    }
+  }
 }

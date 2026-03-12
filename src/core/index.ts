@@ -18,4 +18,6 @@ export {
   isValidTronAddress,
   isValidAddress,
   getEncryptionPassword,
+  getOrCreateMasterKey,
+  migrateEncryptedFiles,
 } from './security-utils.js';

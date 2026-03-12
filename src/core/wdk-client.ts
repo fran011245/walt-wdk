@@ -45,7 +45,7 @@ const EVM_NETWORKS: WdkNetwork[] = ['ethereum', 'base', 'polygon'];
  */
 export class WdkClient {
   private wdk: InstanceType<typeof WDK> | null = null;
-  private readonly seed: string | Uint8Array;
+  private seed: string | Uint8Array | null;
 
   private constructor(seed: string | Uint8Array) {
     this.seed = seed;
@@ -71,11 +71,23 @@ export class WdkClient {
   async init(): Promise<void> {
     if (this.wdk !== null) return;
 
+    if (this.seed == null) {
+      throw new Error('WdkClient has been disposed and cannot be reused.');
+    }
+
     this.wdk = new WDK(this.seed)
       .registerWallet('ethereum', WalletManagerEvm, { provider: NETWORK_PROVIDERS.ethereum })
       .registerWallet('base', WalletManagerEvm, { provider: NETWORK_PROVIDERS.base })
       .registerWallet('polygon', WalletManagerEvm, { provider: NETWORK_PROVIDERS.polygon })
       .registerWallet('tron', WalletManagerTron, { provider: NETWORK_PROVIDERS.tron });
+
+    // Best-effort: clear seed reference after initializing WDK instance.
+    if (typeof this.seed === 'string') {
+      this.seed = null;
+    } else if (this.seed instanceof Uint8Array) {
+      this.seed.fill(0);
+      this.seed = null;
+    }
   }
 
   /** Resolve WDK blockchain name (EVM and tron). */
@@ -135,6 +147,12 @@ export class WdkClient {
     if (this.wdk) {
       this.wdk.dispose();
       this.wdk = null;
+    }
+    if (typeof this.seed === 'string') {
+      this.seed = null;
+    } else if (this.seed instanceof Uint8Array) {
+      this.seed.fill(0);
+      this.seed = null;
     }
   }
 }

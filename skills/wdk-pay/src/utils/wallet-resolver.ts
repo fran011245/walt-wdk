@@ -31,7 +31,8 @@ export async function getWalletSeed(name: string): Promise<string> {
   const p = getSecretPath(name);
   if (!existsSync(p)) throw new Error(`Wallet "${name}" not found.`);
   const encrypted = await readFile(p, 'utf-8');
-  return decrypt(encrypted, getEncryptionPassword());
+  const password = await getEncryptionPassword();
+  return decrypt(encrypted, password);
 }
 
 export async function getWalletMeta(name: string): Promise<WalletMeta> {

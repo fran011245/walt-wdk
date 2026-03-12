@@ -9,6 +9,7 @@ import { parseTokenAmount, getTokenAddress, formatTokenAmount, EXPLORER_TX_URL }
 import { validateAmount, validateAddress, validateToken } from '../utils/validation.js';
 import { appendToLedger } from '../utils/history-ledger.js';
 import type { WdkNetwork } from '@walt-wdk/core';
+import { isValidNetwork } from '../utils/validation.js';
 
 export interface SendInput {
   to: string;
@@ -39,8 +40,31 @@ export async function send(input: SendInput): Promise<SendOutput> {
   if (!walletName) throw new Error('No wallet specified. Set fromWallet or defaultWallet in config.');
 
   const meta = await getWalletMeta(walletName);
+  if (!isValidNetwork(meta.network)) {
+    throw new Error(`Unsupported network stored for wallet "${walletName}": ${meta.network}`);
+  }
   const network = meta.network as WdkNetwork;
   validateAddress(input.to.trim(), network);
+
+  // Optional guard integration: if @walt-wdk/wdk-agent-guard is installed, check limits first.
+  try {
+    const guard = await import('@walt-wdk/wdk-agent-guard');
+    const decision = await guard.check({
+      operation: 'send',
+      amount: input.amount,
+      currency: token,
+      to: input.to.trim(),
+      fromWallet: walletName,
+    });
+    if (!decision.allowed) {
+      throw new Error(`Guard blocked send: ${decision.reason ?? 'not allowed'}`);
+    }
+  } catch (e: any) {
+    // If the guard package is not installed, skip guard checks gracefully.
+    if (e?.code !== 'ERR_MODULE_NOT_FOUND' && e?.code !== 'MODULE_NOT_FOUND') {
+      throw e;
+    }
+  }
 
   const seed = await getWalletSeed(walletName);
   const client = WdkClient.fromSeed(seed);
@@ -67,6 +91,18 @@ export async function send(input: SendInput): Promise<SendOutput> {
       network,
       walletName,
     });
+
+    // Record spend in guard ledger if guard is installed.
+    try {
+      const guard = await import('@walt-wdk/wdk-agent-guard');
+      if (typeof guard.recordSpend === 'function') {
+        await guard.recordSpend(input.amount, token);
+      }
+    } catch (e: any) {
+      if (e?.code !== 'ERR_MODULE_NOT_FOUND' && e?.code !== 'MODULE_NOT_FOUND') {
+        throw e;
+      }
+    }
 
     return {
       success: true,

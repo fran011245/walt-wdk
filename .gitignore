@@ -34,3 +34,6 @@ coverage/
 
 # Local config (may contain sensitive paths)
 .walt-wdk/
+
+# Docs — internal only, never commit
+docs/
