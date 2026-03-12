@@ -1,0 +1,32 @@
+{
+  "name": "walt-wdk",
+  "version": "1.0.0",
+  "description": "OpenClaw Skills Pack for Tether WDK — Galactica WDK Edition",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "WaltWDK Contributors",
+  "type": "module",
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "tsc --noEmit"
+  },
+  "workspaces": [
+    "src/core",
+    "skills/wdk-wallet",
+    "skills/wdk-pay",
+    "skills/wdk-agent-guard"
+  ],
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.6"
+  },
+  "dependencies": {
+    "@tetherto/wdk": "^1.0.0-beta.6",
+    "@tetherto/wdk-wallet-evm": "latest",
+    "@tetherto/wdk-wallet-tron": "latest"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
