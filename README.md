@@ -2,7 +2,7 @@
 
 OpenClaw skills that integrate the official [Tether Wallet Development Kit (WDK)](https://docs.wallet.tether.io) for the **Galactica WDK Edition** hackathon ($30k prize pool).
 
-**License:** Apache-2.0
+**Project site:** [walt-wdk.com](https://walt-wdk.com) · **License:** Apache-2.0
 
 ## Skills
 
@@ -15,11 +15,13 @@ OpenClaw skills that integrate the official [Tether Wallet Development Kit (WDK)
 ## Quick start
 
 ```bash
-git clone https://github.com/your-org/walt-wdk.git && cd walt-wdk
+git clone https://github.com/fran011245/walt-wdk.git && cd walt-wdk
 npm install
 npm run build
 npm test
 ```
+
+For install via OpenClaw/ClawHub and the full story, see [walt-wdk.com](https://walt-wdk.com).
 
 ## Usage examples
 
@@ -47,11 +49,6 @@ walt-wdk/
 ├── README.md
 ├── LICENSE                 # Apache-2.0
 ├── package.json            # workspaces
-├── docs/
-│   ├── INSTALL.md
-│   ├── ARCHITECTURE.md
-│   ├── HACKATHON_SUBMISSION.md
-│   └── VIDEO_SCRIPT.md
 ├── src/core/               # Shared: WDK client, config, security
 │   ├── wdk-client.ts
 │   ├── config-manager.ts
@@ -64,10 +61,7 @@ walt-wdk/
 
 ## Docs
 
-- [Installation](docs/INSTALL.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Hackathon submission](docs/HACKATHON_SUBMISSION.md)
-- [Demo video script](docs/VIDEO_SCRIPT.md)
+For installation, architecture, and hackathon details, see [walt-wdk.com](https://walt-wdk.com).
 
 ## Requirements
 
@@ -76,4 +70,4 @@ walt-wdk/
 
 ## Hackathon
 
-Built for **Galactica WDK Edition (Tether)**. Submission checklist and demo script: [docs/HACKATHON_SUBMISSION.md](docs/HACKATHON_SUBMISSION.md).
+Built for **Galactica WDK Edition (Tether)**. See [walt-wdk.com](https://walt-wdk.com) for submission and demo.
