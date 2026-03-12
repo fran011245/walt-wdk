@@ -37,21 +37,27 @@ function getSecretPath(name: string): string {
 
 async function ensureSecretsDir(): Promise<void> {
   const dir = getSecretsDir();
-  if (!existsSync(dir)) await mkdir(dir, { recursive: true });
+  if (!existsSync(dir)) await mkdir(dir, { recursive: true, mode: 0o700 });
 }
 
 async function loadManifest(): Promise<Manifest> {
   const p = getManifestPath();
   if (!existsSync(p)) return { wallets: {} };
   const raw = await readFile(p, 'utf-8');
-  const parsed = JSON.parse(raw) as Manifest;
-  return parsed.wallets ? parsed : { wallets: {} };
+  const parsed = JSON.parse(raw) as Partial<Manifest>;
+  if (!parsed || typeof parsed !== 'object' || !parsed.wallets || typeof parsed.wallets !== 'object') {
+    throw new Error('Corrupted wallets manifest: expected { wallets: Record<string, WalletMeta> }.');
+  }
+  return parsed as Manifest;
 }
 
 async function saveManifest(manifest: Manifest): Promise<void> {
   const dir = getConfigDir();
-  if (!existsSync(dir)) await mkdir(dir, { recursive: true });
-  await writeFile(getManifestPath(), JSON.stringify(manifest, null, 2), 'utf-8');
+  if (!existsSync(dir)) await mkdir(dir, { recursive: true, mode: 0o700 });
+  await writeFile(getManifestPath(), JSON.stringify(manifest, null, 2), {
+    encoding: 'utf-8',
+    mode: 0o600,
+  });
 }
 
 /**
@@ -59,13 +65,13 @@ async function saveManifest(manifest: Manifest): Promise<void> {
  */
 export async function saveWallet(name: string, network: string, address: string, seedPhrase: string): Promise<void> {
   await ensureSecretsDir();
-  const password = getEncryptionPassword();
+  const password = await getEncryptionPassword();
   const encrypted = encrypt(seedPhrase, password);
   const meta: WalletMeta = { name, network, address, createdAt: new Date().toISOString() };
   const manifest = await loadManifest();
   manifest.wallets[name] = meta;
   await saveManifest(manifest);
-  await writeFile(getSecretPath(name), encrypted, 'utf-8');
+  await writeFile(getSecretPath(name), encrypted, { encoding: 'utf-8', mode: 0o600 });
 }
 
 /**
@@ -75,7 +81,8 @@ export async function getWalletSeed(name: string): Promise<string> {
   const p = getSecretPath(name);
   if (!existsSync(p)) throw new Error(`Wallet "${name}" not found.`);
   const encrypted = await readFile(p, 'utf-8');
-  return decrypt(encrypted, getEncryptionPassword());
+  const password = await getEncryptionPassword();
+  return decrypt(encrypted, password);
 }
 
 /**

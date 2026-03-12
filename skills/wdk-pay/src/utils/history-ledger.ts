@@ -29,8 +29,11 @@ export interface LedgerEntry {
 
 export async function appendToLedger(entry: LedgerEntry): Promise<void> {
   const dir = getConfigDir();
-  if (!existsSync(dir)) await mkdir(dir, { recursive: true });
-  await appendFile(getLedgerPath(), JSON.stringify(entry) + '\n', 'utf-8');
+  if (!existsSync(dir)) await mkdir(dir, { recursive: true, mode: 0o700 });
+  await appendFile(getLedgerPath(), JSON.stringify(entry) + '\n', {
+    encoding: 'utf-8',
+    mode: 0o600,
+  });
 }
 
 export async function readLedger(walletName?: string, limit = 50): Promise<LedgerEntry[]> {
@@ -38,7 +41,21 @@ export async function readLedger(walletName?: string, limit = 50): Promise<Ledge
   if (!existsSync(p)) return [];
   const content = await readFile(p, 'utf-8');
   const lines = content.trim().split('\n').filter(Boolean);
-  let entries = lines.map((line) => JSON.parse(line) as LedgerEntry).reverse();
+  let entries = lines
+    .map((line) => {
+      const parsed = JSON.parse(line) as Partial<LedgerEntry>;
+      if (
+        !parsed ||
+        typeof parsed !== 'object' ||
+        typeof parsed.txHash !== 'string' ||
+        typeof parsed.amount !== 'string' ||
+        typeof parsed.token !== 'string'
+      ) {
+        throw new Error('Corrupted ledger entry in pay-ledger.jsonl.');
+      }
+      return parsed as LedgerEntry;
+    })
+    .reverse();
   if (walletName) entries = entries.filter((e) => e.walletName === walletName);
   return entries.slice(0, limit);
 }

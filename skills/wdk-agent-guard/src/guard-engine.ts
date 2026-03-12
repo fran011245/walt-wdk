@@ -51,15 +51,21 @@ async function loadLedger(): Promise<DayLedger> {
   const p = getLedgerPath();
   if (!existsSync(p)) return { date: today(), spent: {} };
   const raw = await readFile(p, 'utf-8');
-  const data = JSON.parse(raw) as DayLedger;
+  const data = JSON.parse(raw) as Partial<DayLedger>;
+  if (!data || typeof data !== 'object' || typeof data.date !== 'string' || typeof data.spent !== 'object') {
+    throw new Error('Corrupted guard ledger: expected { date: string, spent: Record<string, string> }.');
+  }
   if (data.date !== today()) return { date: today(), spent: {} };
-  return data;
+  return data as DayLedger;
 }
 
 async function saveLedger(ledger: DayLedger): Promise<void> {
   const dir = getConfigDir();
-  if (!existsSync(dir)) await mkdir(dir, { recursive: true });
-  await writeFile(getLedgerPath(), JSON.stringify(ledger, null, 2), 'utf-8');
+  if (!existsSync(dir)) await mkdir(dir, { recursive: true, mode: 0o700 });
+  await writeFile(getLedgerPath(), JSON.stringify(ledger, null, 2), {
+    encoding: 'utf-8',
+    mode: 0o600,
+  });
 }
 
 /** Obtiene el total gastado hoy en la moneda dada. */
@@ -135,6 +141,8 @@ export async function check(config: GuardCheck): Promise<GuardDecision> {
         };
       }
     }
+    // Within daily limits: return allowance info.
+    return { allowed: true, currentDailySpent: spent, remainingDaily: String(remaining) };
   }
 
   if (guard?.requireApproval?.overAmount) {
@@ -147,14 +155,6 @@ export async function check(config: GuardCheck): Promise<GuardDecision> {
         reason: `Amount ${config.amount} >= ${guard.requireApproval.overAmount} requires approval.`,
       };
     }
-  }
-
-  if (guard?.dailyLimit?.amount && guard.dailyLimit.currency === config.currency) {
-    const spent = await getDailySpent(config.currency);
-    const limitNum = parseAmount(guard.dailyLimit.amount);
-    const spentNum = parseAmount(spent);
-    const remaining = Math.max(0, limitNum - spentNum);
-    return { allowed: true, currentDailySpent: spent, remainingDaily: String(remaining) };
   }
 
   return { allowed: true };

@@ -82,6 +82,9 @@ export async function logDecision(decision: {
   reason?: string;
 }): Promise<void> {
   const dir = getConfigDir();
-  if (!existsSync(dir)) await mkdir(dir, { recursive: true });
-  await appendFile(getAuditPath(), JSON.stringify(decision) + '\n', 'utf-8');
+  if (!existsSync(dir)) await mkdir(dir, { recursive: true, mode: 0o700 });
+  await appendFile(getAuditPath(), JSON.stringify(decision) + '\n', {
+    encoding: 'utf-8',
+    mode: 0o600,
+  });
 }
