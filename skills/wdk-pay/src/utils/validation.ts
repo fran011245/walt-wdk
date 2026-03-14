@@ -22,3 +22,9 @@ export function validateAddress(address: string, network: WdkNetwork): void {
 export function validateToken(token: string): token is 'USDT' | 'USDC' {
   return token === 'USDT' || token === 'USDC';
 }
+
+const SUPPORTED_NETWORKS: WdkNetwork[] = ['ethereum', 'base', 'polygon', 'tron'];
+
+export function isValidNetwork(network: string): network is WdkNetwork {
+  return SUPPORTED_NETWORKS.includes(network as WdkNetwork);
+}
