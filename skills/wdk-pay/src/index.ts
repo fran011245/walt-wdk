@@ -16,7 +16,11 @@ export type { HistoryOutput, HistoryTransaction } from './commands/history.js';
 
 export { generateQrDataUrl } from './commands/qr.js';
 
+export { prices } from './commands/prices.js';
+export type { PricesOutput } from './commands/prices.js';
+
 export { getWalletMeta, getWalletSeed, getDefaultWalletName } from './utils/wallet-resolver.js';
 export type { WalletMeta } from './utils/wallet-resolver.js';
 export { parseTokenAmount, formatTokenAmount, getTokenAddress, TOKEN_ADDRESSES, EXPLORER_TX_URL } from './utils/tx-builder.js';
 export { validateAmount, validateAddress, validateToken } from './utils/validation.js';
+export { getPrices, formatPrice, calculateUsdValue } from './utils/price-rates.js';
