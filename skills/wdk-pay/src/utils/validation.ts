@@ -3,13 +3,19 @@
  * Copyright 2026 WaltWDK Contributors. Licensed under Apache-2.0.
  */
 
+import { Decimal } from 'decimal.js';
 import { isValidAddress } from '@walt-wdk/core';
 import type { WdkNetwork } from '@walt-wdk/core';
 
 export function validateAmount(amount: string): void {
-  const n = parseFloat(amount);
-  if (Number.isNaN(n) || n <= 0) throw new Error('Amount must be a positive number.');
-  if (n > 1e12) throw new Error('Amount too large.');
+  let n: Decimal;
+  try {
+    n = new Decimal(amount);
+  } catch {
+    throw new Error('Amount must be a valid number.');
+  }
+  if (n.lessThanOrEqualTo(0)) throw new Error('Amount must be a positive number.');
+  if (n.greaterThan('1e12')) throw new Error('Amount too large.');
 }
 
 export function validateAddress(address: string, network: WdkNetwork): void {

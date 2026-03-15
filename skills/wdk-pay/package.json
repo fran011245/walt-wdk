@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@walt-wdk/core": "file:../../src/core",
+    "decimal.js": "^10.4.3",
     "qrcode": "^1.5.4"
   },
   "devDependencies": {
