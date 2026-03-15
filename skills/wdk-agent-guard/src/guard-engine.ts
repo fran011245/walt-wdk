@@ -6,6 +6,8 @@
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
+import lockfile from 'proper-lockfile';
+import { Decimal } from 'decimal.js';
 import { loadConfig, getConfigDir } from '@walt-wdk/core';
 
 export type GuardOperation = 'send' | 'cron' | 'swap';
@@ -42,9 +44,12 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function parseAmount(s: string): number {
-  const n = parseFloat(s);
-  return Number.isNaN(n) ? 0 : n;
+function parseAmount(s: string): Decimal {
+  try {
+    return new Decimal(s);
+  } catch {
+    return new Decimal(0);
+  }
 }
 
 async function loadLedger(): Promise<DayLedger> {
@@ -74,13 +79,32 @@ export async function getDailySpent(currency: string): Promise<string> {
   return ledger.spent[currency] ?? '0';
 }
 
-/** Registra un gasto en el ledger del día (llamar después de un envío aprobado). */
+/** Registra un gasto en el ledger del día (llamar después de un envío aprobado). Uses file lock to avoid race conditions. */
 export async function recordSpend(amount: string, currency: string): Promise<void> {
-  const ledger = await loadLedger();
-  const current = parseAmount(ledger.spent[currency] ?? '0');
-  const add = parseAmount(amount);
-  ledger.spent[currency] = String(current + add);
-  await saveLedger(ledger);
+  const lockPath = getLedgerPath();
+  if (!existsSync(lockPath)) {
+    await saveLedger({ date: today(), spent: {} });
+  }
+
+  let release: (() => Promise<void>) | undefined;
+  try {
+    release = await lockfile.lock(lockPath, {
+      retries: { retries: 5, factor: 2, minTimeout: 100, maxTimeout: 1000 },
+      stale: 10000,
+    });
+  } catch (e) {
+    throw new Error(`Failed to acquire lock for guard ledger: ${(e as Error).message}`);
+  }
+
+  try {
+    const ledger = await loadLedger();
+    const current = parseAmount(ledger.spent[currency] ?? '0');
+    const add = parseAmount(amount);
+    ledger.spent[currency] = current.plus(add).toString();
+    await saveLedger(ledger);
+  } finally {
+    if (release) await release();
+  }
 }
 
 /**
@@ -109,7 +133,7 @@ export async function check(config: GuardCheck): Promise<GuardDecision> {
   const amountNum = parseAmount(config.amount);
   if (guard?.perTransactionLimit?.amount) {
     const limit = parseAmount(guard.perTransactionLimit.amount);
-    if (guard.perTransactionLimit.currency === config.currency && amountNum > limit) {
+    if (guard.perTransactionLimit.currency === config.currency && amountNum.greaterThan(limit)) {
       return {
         allowed: false,
         reason: `Amount ${config.amount} ${config.currency} exceeds per-transaction limit ${guard.perTransactionLimit.amount}.`,
@@ -121,33 +145,33 @@ export async function check(config: GuardCheck): Promise<GuardDecision> {
     const spent = await getDailySpent(config.currency);
     const spentNum = parseAmount(spent);
     const limitNum = parseAmount(guard.dailyLimit.amount);
-    const remaining = Math.max(0, limitNum - spentNum);
-    if (amountNum > remaining) {
+    const remaining = Decimal.max(0, limitNum.minus(spentNum));
+    if (amountNum.greaterThan(remaining)) {
       return {
         allowed: false,
-        reason: `Would exceed daily limit. Spent today: ${spent} ${config.currency}; limit: ${guard.dailyLimit.amount}; remaining: ${remaining}.`,
+        reason: `Would exceed daily limit. Spent today: ${spent} ${config.currency}; limit: ${guard.dailyLimit.amount}; remaining: ${remaining.toString()}.`,
         currentDailySpent: spent,
-        remainingDaily: String(remaining),
+        remainingDaily: remaining.toString(),
       };
     }
-    if (amountNum > 0) {
-      const afterSpend = spentNum + amountNum;
-      if (afterSpend > limitNum) {
+    if (amountNum.greaterThan(0)) {
+      const afterSpend = spentNum.plus(amountNum);
+      if (afterSpend.greaterThan(limitNum)) {
         return {
           allowed: false,
           reason: `Would exceed daily limit.`,
           currentDailySpent: spent,
-          remainingDaily: String(remaining),
+          remainingDaily: remaining.toString(),
         };
       }
     }
     // Within daily limits: return allowance info.
-    return { allowed: true, currentDailySpent: spent, remainingDaily: String(remaining) };
+    return { allowed: true, currentDailySpent: spent, remainingDaily: remaining.toString() };
   }
 
   if (guard?.requireApproval?.overAmount) {
     const over = parseAmount(guard.requireApproval.overAmount);
-    if (amountNum >= over) {
+    if (amountNum.greaterThanOrEqualTo(over)) {
       return {
         allowed: true,
         requiresApproval: true,

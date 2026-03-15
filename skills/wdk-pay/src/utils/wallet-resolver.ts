@@ -19,11 +19,21 @@ export interface WalletMeta {
   createdAt: string;
 }
 
+/** Wallet name: alphanumeric, dash, underscore; 1–64 chars. Prevents path traversal. */
+function assertValidWalletName(name: string): void {
+  if (!/^[a-zA-Z0-9_-]{1,64}$/.test(name)) {
+    throw new Error(
+      `Invalid wallet name: "${name}". Use only letters, numbers, dash and underscore (1–64 chars).`,
+    );
+  }
+}
+
 function getManifestPath(): string {
   return path.join(getConfigDir(), WALLETS_MANIFEST);
 }
 
 function getSecretPath(name: string): string {
+  assertValidWalletName(name);
   return path.join(getConfigDir(), SECRETS_SUBDIR, `wdk-wallet.${name}.key`);
 }
 
@@ -36,6 +46,7 @@ export async function getWalletSeed(name: string): Promise<string> {
 }
 
 export async function getWalletMeta(name: string): Promise<WalletMeta> {
+  assertValidWalletName(name);
   const manifestPath = getManifestPath();
   if (!existsSync(manifestPath)) throw new Error(`Wallet "${name}" not found.`);
   const raw = await readFile(manifestPath, 'utf-8');

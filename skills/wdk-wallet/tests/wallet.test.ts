@@ -118,16 +118,22 @@ describe('wdk-wallet', () => {
       expect(out.seedPhrase).toBeUndefined();
       expect(out.warning).toContain('confirm');
     });
-    it('returns seed when confirmed', async () => {
+    it('returns seed when confirmed with exact phrase', async () => {
       await createWallet({ name: 'export-seed', network: 'base' });
-      const out = await exportWallet({ name: 'export-seed', format: 'seed', confirmed: true });
+      const out = await exportWallet({
+        name: 'export-seed',
+        format: 'seed',
+        confirmed: 'I understand the risks',
+      });
       expect(out.success).toBe(true);
       expect(out.seedPhrase).toBeDefined();
       expect(typeof out.seedPhrase).toBe('string');
       expect((out.seedPhrase ?? '').split(' ').length).toBeGreaterThanOrEqual(12);
     });
     it('throws for unknown wallet', async () => {
-      await expect(exportWallet({ name: 'no-wallet', format: 'seed', confirmed: true })).rejects.toThrow(/not found/);
+      await expect(
+        exportWallet({ name: 'no-wallet', format: 'seed', confirmed: 'I understand the risks' }),
+      ).rejects.toThrow(/not found/);
     });
   });
 });

@@ -37,3 +37,8 @@ coverage/
 
 # Docs — internal only, never commit
 docs/
+
+# Internal security audit (keep report/backlog private)
+SECURITY_AUDIT_REPORT.md
+SECURITY_AUDIT_SUMMARY.md
+SECURITY_FIXES_BACKLOG.md
