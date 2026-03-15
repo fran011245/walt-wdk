@@ -10,9 +10,12 @@ export type ExportFormat = 'seed' | 'privateKey';
 export interface ExportWalletInput {
   name: string;
   format: ExportFormat;
-  /** Confirmación explícita del usuario (ej. "I understand") */
-  confirmed?: boolean;
+  /** Confirmación explícita: debe ser exactamente CONFIRMATION_PHRASE para revelar seed/key */
+  confirmed?: string;
 }
+
+/** Frase exacta requerida para exportar seed (previene bypass por confirmed: true). */
+const CONFIRMATION_PHRASE = 'I understand the risks';
 
 export interface ExportWalletOutput {
   success: boolean;
@@ -33,11 +36,10 @@ export async function exportWallet(input: ExportWalletInput): Promise<ExportWall
     throw new Error(`Wallet "${input.name}" not found.`);
   }
 
-  if (!input.confirmed) {
+  if (input.confirmed !== CONFIRMATION_PHRASE) {
     return {
       success: false,
-      warning:
-        'SECURITY: You must confirm by setting confirmed=true or saying "I understand" before the seed or key is revealed. Anyone with this data can steal your funds.',
+      warning: `SECURITY: You must confirm by setting confirmed to the exact phrase: "${CONFIRMATION_PHRASE}". Anyone with the seed or private key can steal your funds.`,
     };
   }
 
