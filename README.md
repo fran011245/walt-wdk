@@ -9,7 +9,7 @@ OpenClaw skills that integrate the official [Tether Wallet Development Kit (WDK)
 | Skill | Description |
 |-------|-------------|
 | **wdk-wallet** | Create and manage WDK wallets: create, balance, list, export (with confirmation) |
-| **wdk-pay** | Send and receive USDT/USDC: send, payment request + QR, history |
+| **wdk-pay** | Send and receive USDT/USDC: send, payment request + QR, history, prices |
 | **wdk-agent-guard** | Guardrails for autonomous agents: daily/per-tx limits, whitelist/blacklist, approval flow (Telegram/Discord/Email) |
 
 ## Quick start

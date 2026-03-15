@@ -58,6 +58,14 @@ Agent: Last 10 transactions:
        2. send 25 USDT to 0x5678... — 0xdef... (confirmed)
 ```
 
+### Prices
+
+```
+User: What are the current USDT and USDC prices?
+Agent: USDT: $1.0000 | USDC: $0.9998
+       Timestamp: 2026-03-15T12:00:00.000Z
+```
+
 ## Commands Reference
 
 | Command | Params | Description |
@@ -65,6 +73,7 @@ Agent: Last 10 transactions:
 | `send` | `to`, `amount`, `token` (USDT \| USDC), `fromWallet?`, `memo?` | Send tokens to address |
 | `request` | `from` (wallet name), `amount`, `token` | Generate payment link + QR |
 | `history` | `wallet?`, `limit?` | List recent transactions (from local ledger) |
+| `prices` | — | Get current USDT/USDC prices in USD (for informed agent decisions) |
 
 ## Integration with wdk-wallet
 

@@ -3,6 +3,8 @@
  * Copyright 2026 WaltWDK Contributors. Licensed under Apache-2.0.
  */
 
+import { Decimal } from 'decimal.js';
+
 const PRICE_CACHE_TTL_MS = 60_000; // 1 minute cache
 
 interface PriceCache {
@@ -63,10 +65,16 @@ export function formatPrice(price: number): string {
 
 /**
  * Calculate USD value of token amount.
+ * Uses Decimal.js for precision consistency with guard and pay.
  */
 export function calculateUsdValue(amount: string, price: number): string {
-  const n = parseFloat(amount);
-  if (Number.isNaN(n) || n < 0) return '$0.00';
-  const value = n * price;
-  return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  let n: Decimal;
+  try {
+    n = new Decimal(amount);
+  } catch {
+    return '$0.00';
+  }
+  if (n.lessThan(0)) return '$0.00';
+  const value = n.times(price);
+  return `$${value.toFixed(2)}`;
 }

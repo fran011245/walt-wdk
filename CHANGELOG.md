@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.2.0] - 2026-03-15
+
+### Added
+
+- **prices** command in wdk-pay — returns current USDT/USDC prices (CoinGecko, 1 min cache) for informed agent decisions.
+
 ## [1.1.0] - 2026-03-14
 
 ### Security
