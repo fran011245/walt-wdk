@@ -16,8 +16,10 @@ export interface WaltWdkConfig {
   defaultNetwork?: string;
   defaultWallet?: string;
   encryption?: string;
-  /** Agent guard limits (used by wdk-agent-guard) */
+  /** Agent guard limits (used by wdk-agent-guard). If enabled (default), guard module must be installed. Do not set enabled: false in production without justification. */
   guard?: {
+    /** When true or omitted, guard checks run and the guard package is required. Set false only for local/dev. */
+    enabled?: boolean;
     dailyLimit?: { amount: string; currency: string };
     perTransactionLimit?: { amount: string; currency: string };
     requireApproval?: { overAmount: string; notifyVia?: string; timeout?: string };

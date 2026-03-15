@@ -3,7 +3,7 @@
  * Copyright 2026 WaltWDK Contributors. Licensed under Apache-2.0.
  */
 
-import { WdkClient } from '@walt-wdk/core';
+import { WdkClient, loadConfig } from '@walt-wdk/core';
 import { getWalletSeed, getWalletMeta, getDefaultWalletName } from '../utils/wallet-resolver.js';
 import { parseTokenAmount, getTokenAddress, formatTokenAmount, EXPLORER_TX_URL } from '../utils/tx-builder.js';
 import { validateAmount, validateAddress, validateToken } from '../utils/validation.js';
@@ -46,22 +46,44 @@ export async function send(input: SendInput): Promise<SendOutput> {
   const network = meta.network as WdkNetwork;
   validateAddress(input.to.trim(), network);
 
-  // Optional guard integration: if @walt-wdk/wdk-agent-guard is installed, check limits first.
-  try {
-    const guard = await import('@walt-wdk/wdk-agent-guard');
-    const decision = await guard.check({
-      operation: 'send',
-      amount: input.amount,
-      currency: token,
-      to: input.to.trim(),
-      fromWallet: walletName,
-    });
-    if (!decision.allowed) {
-      throw new Error(`Guard blocked send: ${decision.reason ?? 'not allowed'}`);
-    }
-  } catch (e: any) {
-    // If the guard package is not installed, skip guard checks gracefully.
-    if (e?.code !== 'ERR_MODULE_NOT_FOUND' && e?.code !== 'MODULE_NOT_FOUND') {
+  // Guard integration: when enabled (default), check limits and require approval when configured.
+  const cfg = await loadConfig();
+  const guardEnabled = cfg.guard?.enabled !== false;
+
+  if (guardEnabled) {
+    try {
+      const guard = await import('@walt-wdk/wdk-agent-guard');
+      const decision = await guard.check({
+        operation: 'send',
+        amount: input.amount,
+        currency: token,
+        to: input.to.trim(),
+        fromWallet: walletName,
+      });
+
+      if (!decision.allowed) {
+        throw new Error(`Guard blocked send: ${decision.reason ?? 'not allowed'}`);
+      }
+
+      if (decision.requiresApproval) {
+        const approval = await guard.requestApproval({
+          operation: 'send',
+          amount: input.amount,
+          currency: token,
+          to: input.to.trim(),
+          fromWallet: walletName,
+          reason: decision.reason ?? 'Amount exceeds approval threshold',
+        });
+        if (!approval.approved) {
+          throw new Error(`Send cancelled: ${approval.reason ?? 'approval denied or timeout'}`);
+        }
+      }
+    } catch (e: any) {
+      if (e?.code === 'ERR_MODULE_NOT_FOUND' || e?.code === 'MODULE_NOT_FOUND') {
+        throw new Error(
+          'Guard is enabled but @walt-wdk/wdk-agent-guard is not installed. Install it or set guard.enabled=false in config.',
+        );
+      }
       throw e;
     }
   }
