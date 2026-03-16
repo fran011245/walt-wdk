@@ -68,6 +68,10 @@ For installation, architecture, and hackathon details, see [walt-wdk.com](https:
 - Node.js >= 18
 - OpenClaw >= 2.0 (for using skills in an agent)
 
+## Security and disclaimer
+
+This software is a hackathon prototype and **has not undergone an independent third-party security audit**. Use at your own risk. For production use, a professional security audit is recommended. To report vulnerabilities, see [SECURITY.md](SECURITY.md).
+
 ## Hackathon
 
 Built for **Galactica WDK Edition (Tether)**. See [walt-wdk.com](https://walt-wdk.com) for submission and demo.

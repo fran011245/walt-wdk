@@ -31,6 +31,16 @@ export async function getAuditLog(limit = 100): Promise<DecisionEntry[]> {
   if (!existsSync(p)) return [];
   const content = await readFile(p, 'utf-8');
   const lines = content.trim().split('\n').filter(Boolean);
-  const entries = lines.map((line) => JSON.parse(line) as DecisionEntry).reverse();
-  return entries.slice(0, limit);
+  const entries: DecisionEntry[] = [];
+  for (const line of lines) {
+    try {
+      const entry = JSON.parse(line) as DecisionEntry;
+      if (entry && typeof entry.timestamp === 'string' && typeof entry.approved === 'boolean') {
+        entries.push(entry);
+      }
+    } catch {
+      // Skip malformed or malicious lines; do not fail the whole read
+    }
+  }
+  return entries.reverse().slice(0, limit);
 }

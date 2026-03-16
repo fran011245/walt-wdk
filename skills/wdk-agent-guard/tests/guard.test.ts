@@ -3,7 +3,15 @@
  * Copyright 2026 WaltWDK Contributors. Licensed under Apache-2.0.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// Mock proper-lockfile to avoid test-time dependency on native/Node-specific locking.
+vi.mock('proper-lockfile', () => ({
+  default: {
+    // Mimic the async lock() API and return a no-op release function.
+    lock: async () => async () => {},
+  },
+}));
+
 import {
   checkLimit,
   getDailySpent,

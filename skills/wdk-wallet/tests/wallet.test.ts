@@ -3,7 +3,11 @@
  * Copyright 2026 WaltWDK Contributors. Licensed under Apache-2.0.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// Mock optional guard integration so export tests don't depend on wdk-agent-guard (and its lockfile).
+vi.mock('@walt-wdk/wdk-agent-guard', () => ({
+  logDecision: vi.fn(async () => {}),
+}));
 import {
   createWallet,
   getBalance,
