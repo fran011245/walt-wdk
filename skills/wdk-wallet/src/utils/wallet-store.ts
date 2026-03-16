@@ -12,6 +12,15 @@ import { getConfigDir, encrypt, decrypt, getEncryptionPassword } from '@walt-wdk
 const WALLETS_MANIFEST = 'wallets.json';
 const SECRETS_SUBDIR = 'secrets';
 
+/** Wallet name: alphanumeric, dash, underscore; 1–64 chars. Prevents path traversal. */
+function assertValidWalletName(name: string): void {
+  if (!/^[a-zA-Z0-9_-]{1,64}$/.test(name)) {
+    throw new Error(
+      `Invalid wallet name: "${name}". Use only letters, numbers, dash and underscore (1–64 chars).`,
+    );
+  }
+}
+
 export interface WalletMeta {
   name: string;
   network: string;
@@ -32,6 +41,7 @@ function getManifestPath(): string {
 }
 
 function getSecretPath(name: string): string {
+  assertValidWalletName(name);
   return path.join(getSecretsDir(), `wdk-wallet.${name}.key`);
 }
 

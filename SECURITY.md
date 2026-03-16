@@ -1,5 +1,7 @@
 # Security
 
+**Disclaimer:** This project has not been audited by an independent third party. It is intended for hackathon and evaluation use; production use should be preceded by a professional security review.
+
 ## Reporting a vulnerability
 
 If you discover a security issue in Walt WDK, please report it responsibly:
@@ -14,6 +16,7 @@ We take security seriously. An internal security review of the application code 
 
 - The **wdk-agent-guard** integration is **enabled by default** (`config.guard.enabled !== false`). When enabled, the guard package must be installed or sends will fail (fail-closed).
 - To run without guard (e.g. local dev), set `guard.enabled: false` in your config. Do not disable the guard in production without a clear reason.
+- **Secrets in production:** In production, always set `WALT_WDK_SECRET_KEY` or `OPENCLAW_SECRET_KEY` in the environment. Do not rely on the on-disk master key (`.master-key`); that fallback is for local development only.
 - Seed export requires the exact confirmation phrase; never share seeds or private keys.
 
 ## Dependencies

@@ -6,6 +6,7 @@
 import { Decimal } from 'decimal.js';
 
 const PRICE_CACHE_TTL_MS = 60_000; // 1 minute cache
+const FETCH_TIMEOUT_MS = 10_000; // 10 seconds
 
 interface PriceCache {
   usdt: number;
@@ -27,11 +28,13 @@ export async function getPrices(): Promise<{ usdt: number; usdc: number }> {
   }
 
   try {
-    // CoinGecko API — free, no key needed for basic endpoints
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     const response = await fetch(
       'https://api.coingecko.com/api/v3/simple/price?ids=tether,usd-coin&vs_currencies=usd',
-      { headers: { 'Accept': 'application/json' } }
+      { headers: { 'Accept': 'application/json' }, signal: controller.signal }
     );
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`Price API error: ${response.status}`);
