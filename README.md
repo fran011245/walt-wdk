@@ -106,6 +106,14 @@ Stored under `~/.walt-wdk/config.json` (or `WALT_WDK_CONFIG_DIR`). Do **not** co
 }
 ```
 
+### Agents and automation
+
+If you (or an agent) install or update this repo from git, run `npm install` and `npm run build` so `@walt-wdk/core` matches the workspace.
+
+**Tron sends (TRC20):** set `WALT_WDK_TRON_PRO_API_KEY` in the **host environment** (recommended for CI/agents) or add `rpc.tron.apiKey` to `~/.walt-wdk/config.json`. Restart the agent or Node process after changing env vars so the new value is picked up.
+
+**Secrets:** do not commit API keys, paste them into public issues/PRs, or rely on long-lived chat logs if you can use a secret store or local env instead. See the [RPC providers](#rpc-providers-rate-limits) table above for all override variables.
+
 ## Security and disclaimer
 
 This software is a hackathon prototype and **has not undergone an independent third-party security audit**. Use at your own risk. For production use, a professional security audit is recommended. To report vulnerabilities, see [SECURITY.md](SECURITY.md).

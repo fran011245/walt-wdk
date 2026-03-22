@@ -29,6 +29,15 @@ Set a default wallet in `~/.walt-wdk/config.json` (or use `fromWallet` per comma
 }
 ```
 
+### Tron (TRC20) and rate limits
+
+Sending USDT/USDC on **Tron** needs a [TronGrid](https://www.trongrid.io/) API key or you may get HTTP 429 from public RPC. Configure one of:
+
+- **Environment (preferred for agents/CI):** `WALT_WDK_TRON_PRO_API_KEY`
+- **Config file:** `rpc.tron.apiKey` (and optional `rpc.tron.fullHost`) in `~/.walt-wdk/config.json`
+
+After setting env vars, **restart** the agent process. Full list of RPC env vars and examples: root [README.md](../../README.md#rpc-providers-rate-limits) in the WaltWDK repo.
+
 ## Usage
 
 ### Send USDT/USDC
