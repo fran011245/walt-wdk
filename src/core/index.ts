@@ -10,7 +10,9 @@ export {
   getConfig,
   getConfigDir,
   type WaltWdkConfig,
+  type WaltWdkRpcConfig,
 } from './config-manager.js';
+export { resolveRpcProviders, type ResolvedRpcProviders, type ResolvedTronProvider } from './rpc-resolve.js';
 export {
   encrypt,
   decrypt,

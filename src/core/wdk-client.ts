@@ -6,6 +6,10 @@
 import WDK from '@tetherto/wdk';
 import WalletManagerEvm from '@tetherto/wdk-wallet-evm';
 import WalletManagerTron from '@tetherto/wdk-wallet-tron';
+import TronWeb from 'tronweb';
+
+import { loadConfig } from './config-manager.js';
+import { resolveRpcProviders } from './rpc-resolve.js';
 
 /** Supported network identifiers for the wrapper */
 export type WdkNetwork = 'ethereum' | 'base' | 'polygon' | 'tron';
@@ -27,17 +31,6 @@ interface WdkAccountRaw {
   sendTransaction(tx: { to: string; value: bigint; data?: string }): Promise<{ hash: string }>;
   transfer(options: { token: string; recipient: string; amount: number | bigint }): Promise<{ hash: string }>;
 }
-
-/** Default RPC URLs per network (public endpoints) */
-const NETWORK_PROVIDERS: Record<WdkNetwork, string> = {
-  ethereum: 'https://eth.drpc.org',
-  base: 'https://mainnet.base.org',
-  polygon: 'https://polygon-rpc.com',
-  tron: 'https://api.trongrid.io',
-};
-
-/** EVM-based networks that use WalletManagerEvm */
-const EVM_NETWORKS: WdkNetwork[] = ['ethereum', 'base', 'polygon'];
 
 /**
  * Wraps Tether WDK: one instance per seed phrase.
@@ -75,11 +68,22 @@ export class WdkClient {
       throw new Error('WdkClient has been disposed and cannot be reused.');
     }
 
+    const cfg = await loadConfig();
+    const providers = resolveRpcProviders(cfg);
+
+    const tronProvider =
+      providers.tron.kind === 'authed'
+        ? new TronWeb({
+            fullHost: providers.tron.fullHost,
+            headers: { 'TRON-PRO-API-KEY': providers.tron.apiKey },
+          })
+        : providers.tron.fullHost;
+
     this.wdk = new WDK(this.seed)
-      .registerWallet('ethereum', WalletManagerEvm, { provider: NETWORK_PROVIDERS.ethereum })
-      .registerWallet('base', WalletManagerEvm, { provider: NETWORK_PROVIDERS.base })
-      .registerWallet('polygon', WalletManagerEvm, { provider: NETWORK_PROVIDERS.polygon })
-      .registerWallet('tron', WalletManagerTron, { provider: NETWORK_PROVIDERS.tron });
+      .registerWallet('ethereum', WalletManagerEvm, { provider: providers.ethereum })
+      .registerWallet('base', WalletManagerEvm, { provider: providers.base })
+      .registerWallet('polygon', WalletManagerEvm, { provider: providers.polygon })
+      .registerWallet('tron', WalletManagerTron, { provider: tronProvider });
 
     // Best-effort: clear seed reference after initializing WDK instance.
     if (typeof this.seed === 'string') {
