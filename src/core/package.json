@@ -15,15 +15,18 @@
   },
   "scripts": {
     "build": "tsc",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@tetherto/wdk": "^1.0.0-beta.6",
     "@tetherto/wdk-wallet-evm": "latest",
-    "@tetherto/wdk-wallet-tron": "latest"
+    "@tetherto/wdk-wallet-tron": "latest",
+    "tronweb": "^5.3.4"
   },
   "devDependencies": {
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.6"
   },
   "engines": {
     "node": ">=18"

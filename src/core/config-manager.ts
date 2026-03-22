@@ -12,10 +12,22 @@ function getConfigDirPath(): string {
   return process.env.WALT_WDK_CONFIG_DIR ?? path.join(homedir(), '.walt-wdk');
 }
 
+/** Optional RPC overrides (see README). Env vars take precedence when set. */
+export interface WaltWdkRpcConfig {
+  ethereum?: string;
+  base?: string;
+  polygon?: string;
+  tron?: {
+    fullHost?: string;
+    apiKey?: string;
+  };
+}
+
 export interface WaltWdkConfig {
   defaultNetwork?: string;
   defaultWallet?: string;
   encryption?: string;
+  rpc?: WaltWdkRpcConfig;
   /** Agent guard limits (used by wdk-agent-guard). If enabled (default), guard module must be installed. Do not set enabled: false in production without justification. */
   guard?: {
     /** When true or omitted, guard checks run and the guard package is required. Set false only for local/dev. */

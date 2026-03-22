@@ -68,6 +68,44 @@ For installation, architecture, and hackathon details, see [walt-wdk.com](https:
 - Node.js >= 18
 - OpenClaw >= 2.0 (for using skills in an agent)
 
+## RPC providers (rate limits)
+
+WaltWDK talks to each chain through HTTP RPC endpoints. **Public endpoints are shared** and may return HTTP 429 if too many requests hit the same IP.
+
+- **Tron (TronGrid):** Sending TRC20 (e.g. USDT) triggers several API calls per transfer. Using TronGrid **without** an API key is much more likely to hit 429. Create a free [TronGrid](https://www.trongrid.io/) API key and pass it as below.
+- **Ethereum / Base / Polygon:** Defaults are public RPC URLs. For heavier use, point `rpc` (or env) at your own provider (Alchemy, Infura, etc.); URLs often include the API key in the path.
+
+**Precedence:** environment variables override `~/.walt-wdk/config.json`, which overrides built-in defaults.
+
+### Environment variables
+
+| Variable | Purpose |
+|----------|---------|
+| `WALT_WDK_RPC_ETHEREUM` | Ethereum JSON-RPC URL |
+| `WALT_WDK_RPC_BASE` | Base JSON-RPC URL |
+| `WALT_WDK_RPC_POLYGON` | Polygon JSON-RPC URL |
+| `WALT_WDK_TRON_FULL_HOST` | Tron full node host (default: `https://api.trongrid.io`) |
+| `WALT_WDK_TRON_PRO_API_KEY` | TronGrid API key (sent as `TRON-PRO-API-KEY`) |
+
+### `config.json` example
+
+Stored under `~/.walt-wdk/config.json` (or `WALT_WDK_CONFIG_DIR`). Do **not** commit real API keys to git.
+
+```json
+{
+  "defaultNetwork": "base",
+  "rpc": {
+    "ethereum": "https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY",
+    "base": "https://base-mainnet.g.alchemy.com/v2/YOUR_KEY",
+    "polygon": "https://polygon-mainnet.g.alchemy.com/v2/YOUR_KEY",
+    "tron": {
+      "fullHost": "https://api.trongrid.io",
+      "apiKey": "YOUR_TRONGRID_KEY"
+    }
+  }
+}
+```
+
 ## Security and disclaimer
 
 This software is a hackathon prototype and **has not undergone an independent third-party security audit**. Use at your own risk. For production use, a professional security audit is recommended. To report vulnerabilities, see [SECURITY.md](SECURITY.md).
