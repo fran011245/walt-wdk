@@ -21,6 +21,8 @@ export interface WdkAccount {
   getTokenBalance: (tokenAddress: string) => Promise<bigint>;
   sendTransaction: (tx: { to: string; value: bigint; data?: string }) => Promise<{ hash: string }>;
   transfer: (options: { to: string; token: string; amount: bigint }) => Promise<{ hash: string }>;
+  /** Tron only: estimated max fee in SUN for a TRC-20 transfer (from WDK quoteTransfer). */
+  quoteTransfer?: (options: { to: string; token: string; amount: bigint }) => Promise<{ fee: bigint }>;
 }
 
 /** Raw WDK account with getAddress and transfer(recipient) */
@@ -30,6 +32,7 @@ interface WdkAccountRaw {
   getTokenBalance(tokenAddress: string): Promise<bigint>;
   sendTransaction(tx: { to: string; value: bigint; data?: string }): Promise<{ hash: string }>;
   transfer(options: { token: string; recipient: string; amount: number | bigint }): Promise<{ hash: string }>;
+  quoteTransfer?(options: { token: string; recipient: string; amount: number | bigint }): Promise<{ fee: bigint }>;
 }
 
 /**
@@ -113,6 +116,10 @@ export class WdkClient {
         account.sendTransaction({ to: tx.to, value: tx.value, data: tx.data }),
       transfer: (options: { to: string; token: string; amount: bigint }) =>
         account.transfer({ token: options.token, recipient: options.to, amount: options.amount }),
+      quoteTransfer: account.quoteTransfer
+        ? (options: { to: string; token: string; amount: bigint }) =>
+            account.quoteTransfer!({ token: options.token, recipient: options.to, amount: options.amount })
+        : undefined,
     };
   }
 
@@ -144,6 +151,20 @@ export class WdkClient {
   async transfer(network: WdkNetwork, options: { to: string; token: string; amount: bigint }, index = 0): Promise<{ hash: string }> {
     const acc = await this.getAccount(network, index);
     return acc.transfer({ to: options.to, token: options.token, amount: options.amount });
+  }
+
+  /**
+   * Quote max fee for a token transfer (Tron only). Returns null on EVM chains.
+   * Fee is in SUN; matches what @tetherto/wdk-wallet-tron uses as feeLimit.
+   */
+  async quoteTransfer(
+    network: WdkNetwork,
+    options: { to: string; token: string; amount: bigint },
+    index = 0,
+  ): Promise<{ fee: bigint } | null> {
+    const acc = await this.getAccount(network, index);
+    if (!acc.quoteTransfer) return null;
+    return acc.quoteTransfer(options);
   }
 
   /** Release in-memory seed and wallets. Call when done. */
