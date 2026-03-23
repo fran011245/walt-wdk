@@ -11,6 +11,10 @@ import { appendToLedger } from '../utils/history-ledger.js';
 import type { WdkNetwork } from '@walt-wdk/core';
 import { isValidNetwork } from '../utils/validation.js';
 
+function formatTrxFromSun(sun: bigint): string {
+  return (Number(sun) / 1_000_000).toFixed(2);
+}
+
 export interface SendInput {
   to: string;
   amount: string;
@@ -98,7 +102,37 @@ export async function send(input: SendInput): Promise<SendOutput> {
     if (balance < amountBase) {
       throw new Error(`Insufficient ${token} balance. Have ${formatTokenAmount(balance)}, need ${input.amount}.`);
     }
-    const result = await client.transfer(network, { to: input.to.trim(), token: tokenAddress, amount: amountBase }, 0);
+
+    if (network === 'tron') {
+      const [nativeBal, quote] = await Promise.all([
+        client.getBalance(network, 0),
+        client.quoteTransfer(network, { to: input.to.trim(), token: tokenAddress, amount: amountBase }, 0),
+      ]);
+      if (quote && nativeBal < quote.fee) {
+        const need = formatTrxFromSun(quote.fee);
+        const have = formatTrxFromSun(nativeBal);
+        throw new Error(
+          `Insufficient TRX for Tron network fee. Estimated fee: ~${need} TRX, available: ${have} TRX.\n` +
+            `  - Add at least ${need} TRX to this wallet, or\n` +
+            `  - Stake 500+ TRX for Energy to make transfers nearly free.\n` +
+            `  https://developers.tron.network/docs/resource-model`,
+        );
+      }
+    }
+
+    let result: { hash: string };
+    try {
+      result = await client.transfer(network, { to: input.to.trim(), token: tokenAddress, amount: amountBase }, 0);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (network === 'tron' && (msg.includes('OUT_OF_ENERGY') || /out of energy/i.test(msg))) {
+        throw new Error(
+          `Tron transfer failed: out of Energy. Add more TRX or stake for Energy.\n` +
+            `  https://developers.tron.network/docs/resource-model`,
+        );
+      }
+      throw err;
+    }
     const explorerUrl = EXPLORER_TX_URL[network] + result.hash;
     const timestamp = new Date().toISOString();
 
