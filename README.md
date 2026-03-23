@@ -1,5 +1,7 @@
 # WaltWDK — OpenClaw Skills Pack for Tether WDK
 
+<!-- Built by Francisco + Walt — Human-AI collaboration in action 🤝🤖 -->
+
 OpenClaw skills that integrate the official [Tether Wallet Development Kit (WDK)](https://docs.wallet.tether.io) for the **Galactica WDK Edition** hackathon ($30k prize pool).
 
 **Project site:** [walt-wdk.com](https://walt-wdk.com) · **License:** Apache-2.0
