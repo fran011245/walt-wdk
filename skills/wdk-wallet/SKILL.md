@@ -5,7 +5,7 @@ version: 1.0.0
 author: walt-wdk
 license: Apache-2.0
 openclaw:
-  requires: ["@tetherto/wdk"]
+  requires: ['@tetherto/wdk']
 ---
 
 # wdk-wallet
@@ -91,12 +91,12 @@ Agent: ⚠️ SECURITY WARNING
 
 ## Commands Reference
 
-| Command | Params | Description |
-|---------|--------|-------------|
-| `create` | `name`, `network?`, `backup?` | Create new wallet |
-| `balance` | `name` | Check balance (native + USDT/USDC) |
-| `list` | — | List all wallets |
-| `export` | `name`, `format` (seed \| privateKey), `confirmed?` | Export seed or key (requires confirmation) |
+| Command   | Params                                              | Description                                |
+| --------- | --------------------------------------------------- | ------------------------------------------ |
+| `create`  | `name`, `network?`, `backup?`                       | Create new wallet                          |
+| `balance` | `name`                                              | Check balance (native + USDT/USDC)         |
+| `list`    | —                                                   | List all wallets                           |
+| `export`  | `name`, `format` (seed \| privateKey), `confirmed?` | Export seed or key (requires confirmation) |
 
 ## Security Considerations
 

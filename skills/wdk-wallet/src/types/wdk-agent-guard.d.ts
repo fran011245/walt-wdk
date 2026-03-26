@@ -51,9 +51,13 @@ declare module '@walt-wdk/wdk-agent-guard' {
   export function check(config: GuardCheck): Promise<GuardDecision>;
   export function getDailySpent(currency: string): Promise<string>;
   export function recordSpend(amount: string, currency: string): Promise<void>;
-  export function notify(request: ApprovalRequest, method: 'telegram' | 'email' | 'discord'): Promise<void>;
-  export function waitForApproval(request: ApprovalRequest, timeoutMs: number, notifyVia?: string): Promise<ApprovalResult>;
+  export function waitForApproval(
+    request: ApprovalRequest,
+    timeoutMs: number,
+    notifyVia?: string,
+  ): Promise<ApprovalResult>;
   export function parseTimeout(timeoutStr: string): number;
+  export function setApprovalLogger(logger: ((level: 'info' | 'warn', message: string) => void) | null): void;
   export function checkLimit(input: { currency?: string }): Promise<any>;
   export function requestApproval(input: any): Promise<any>;
   export function logDecision(entry: DecisionEntry): Promise<void>;

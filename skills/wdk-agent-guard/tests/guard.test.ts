@@ -59,7 +59,7 @@ describe('wdk-agent-guard', () => {
         JSON.stringify({
           guard: { blacklist: ['0x0000000000000000000000000000000000000001'] },
         }),
-        'utf-8'
+        'utf-8',
       );
       const res = await checkLimit({
         operation: 'send',
@@ -77,12 +77,10 @@ describe('wdk-agent-guard', () => {
         path.join(TEST_CONFIG_DIR, 'config.json'),
         JSON.stringify({
           guard: {
-            whitelist: [
-              { address: '0x0000000000000000000000000000000000000002', skipApproval: true },
-            ],
+            whitelist: [{ address: '0x0000000000000000000000000000000000000002', skipApproval: true }],
           },
         }),
-        'utf-8'
+        'utf-8',
       );
       const res = await checkLimit({
         operation: 'send',
@@ -102,7 +100,7 @@ describe('wdk-agent-guard', () => {
             requireApproval: { overAmount: '100', notifyVia: 'telegram' },
           },
         }),
-        'utf-8'
+        'utf-8',
       );
       const res = await checkLimit({
         operation: 'send',

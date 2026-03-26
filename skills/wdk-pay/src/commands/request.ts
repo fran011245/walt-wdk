@@ -8,7 +8,7 @@ import { getWalletMeta, getDefaultWalletName } from '../utils/wallet-resolver.js
 import { validateAmount, validateToken } from '../utils/validation.js';
 
 export interface RequestInput {
-  from: string;  // wallet name (who receives)
+  from: string; // wallet name (who receives)
   amount: string;
   token: 'USDT' | 'USDC';
 }

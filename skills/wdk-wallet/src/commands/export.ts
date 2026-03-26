@@ -67,8 +67,9 @@ export async function exportWallet(input: ExportWalletInput): Promise<ExportWall
           reason: 'Seed export confirmed by user.',
         });
       }
-    } catch (e: any) {
-      if (e?.code !== 'ERR_MODULE_NOT_FOUND' && e?.code !== 'MODULE_NOT_FOUND') {
+    } catch (e: unknown) {
+      const code = e && typeof e === 'object' && 'code' in e ? (e as { code?: string }).code : undefined;
+      if (code !== 'ERR_MODULE_NOT_FOUND' && code !== 'MODULE_NOT_FOUND') {
         throw e;
       }
     }

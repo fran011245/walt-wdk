@@ -8,6 +8,7 @@ import { readFile, writeFile, mkdir, readdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
 import { getConfigDir } from './config-manager.js';
+import { keccak_256 } from '@noble/hashes/sha3.js';
 
 const ALG = 'aes-256-gcm';
 const KEY_LEN = 32;
@@ -56,17 +57,33 @@ export function decrypt(encryptedBase64: string, password: string): string {
 }
 
 /**
- * Validate Ethereum/EVM address (0x + 40 hex) with basic EIP-55 awareness.
- * - Accepts all-lowercase and all-uppercase addresses as valid.
- * - Rejects mixed-case addresses unless they are strictly checksum-correct
- *   (future improvement; for now we conservatively reject mixed-case).
+ * Keccak-256 (64 hex chars) over ASCII bytes of the 40-char lowercase hex body (no 0x). EIP-55.
+ */
+function eip55HashHex(lowerHex40: string): string {
+  const bytes = new Uint8Array(40);
+  for (let i = 0; i < 40; i++) bytes[i] = lowerHex40.charCodeAt(i);
+  return Array.from(keccak_256(bytes), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Validate Ethereum/EVM address (0x + 40 hex).
+ * All-lowercase or all-uppercase: accepted. Mixed-case: only if EIP-55 checksum is valid.
  */
 export function isValidEvmAddress(address: string): boolean {
   if (!/^0x[a-fA-F0-9]{40}$/.test(address)) return false;
   const body = address.slice(2);
   if (body === body.toLowerCase() || body === body.toUpperCase()) return true;
-  // Mixed-case without full checksum validation: reject to avoid accepting malformed addresses.
-  return false;
+  const lower = body.toLowerCase();
+  const hashHex = eip55HashHex(lower);
+  for (let i = 0; i < 40; i++) {
+    const c = body[i]!;
+    if (c >= '0' && c <= '9') continue;
+    const hn = parseInt(hashHex[i]!, 16);
+    const wantUpper = hn > 7;
+    if (wantUpper && c !== c.toUpperCase()) return false;
+    if (!wantUpper && c !== c.toLowerCase()) return false;
+  }
+  return true;
 }
 
 /**

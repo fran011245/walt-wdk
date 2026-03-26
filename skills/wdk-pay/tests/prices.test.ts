@@ -5,11 +5,11 @@ import { getPrices, formatPrice, calculateUsdValue } from '../src/utils/price-ra
 describe('wdk-pay > prices', () => {
   it('prices() returns formatted USDT and USDC prices', async () => {
     const result = await prices();
-    
+
     expect(result).toHaveProperty('usdt');
     expect(result).toHaveProperty('usdc');
     expect(result).toHaveProperty('timestamp');
-    
+
     // Should be formatted as $X.XXXX
     expect(result.usdt).toMatch(/^\$\d+\.\d{4}$/);
     expect(result.usdc).toMatch(/^\$\d+\.\d{4}$/);
@@ -17,12 +17,12 @@ describe('wdk-pay > prices', () => {
 
   it('getPrices() returns numeric prices', async () => {
     const result = await getPrices();
-    
+
     expect(result).toHaveProperty('usdt');
     expect(result).toHaveProperty('usdc');
     expect(typeof result.usdt).toBe('number');
     expect(typeof result.usdc).toBe('number');
-    
+
     // Stablecoins should be close to $1.00
     expect(result.usdt).toBeGreaterThan(0.95);
     expect(result.usdt).toBeLessThan(1.05);

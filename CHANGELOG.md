@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.0] - 2026-03-26
+
+### Added
+
+- GitHub Actions CI (Node 18/20): build, typecheck, lint, test, coverage.
+- ESLint + Prettier + EditorConfig; Dependabot weekly npm updates.
+- **EIP-55** checksum validation for mixed-case EVM addresses in `@walt-wdk/core`.
+- **Guard config validation** (JSON Schema + Ajv) for `config.guard`.
+- **Approval channels:** `guard.requireApproval.approvalChannel`: `file` (pending JSON under `~/.walt-wdk/pending-approvals/`) or `console` (log + fast reject; default when omitted).
+- Injectable approval logging via `setApprovalLogger` on `wdk-agent-guard`.
+- Tests: `security-utils` (EIP-55), guard schema validation, send+guard integration (mocked).
+- [CONTRIBUTING.md](CONTRIBUTING.md) for contributors.
+
+### Changed
+
+- Pinned `@tetherto/wdk-wallet-evm` / `@tetherto/wdk-wallet-tron` in `@walt-wdk/core` (no more `latest`).
+- Removed unused `notify` export from `wdk-agent-guard` (use `waitForApproval` / file channel).
+- `wdk-pay` devDependency on `wdk-agent-guard` for tests.
+
 ## [1.2.0] - 2026-03-15
 
 ### Added

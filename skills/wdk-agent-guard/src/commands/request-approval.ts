@@ -4,7 +4,13 @@
  */
 
 import { loadConfig } from '@walt-wdk/core';
-import { waitForApproval, parseTimeout, logDecision, type ApprovalRequest, type ApprovalResult } from '../approval-flow.js';
+import {
+  waitForApproval,
+  parseTimeout,
+  logDecision,
+  type ApprovalRequest,
+  type ApprovalResult,
+} from '../approval-flow.js';
 
 export interface RequestApprovalInput {
   operation: string;

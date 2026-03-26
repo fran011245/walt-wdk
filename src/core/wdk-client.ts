@@ -106,7 +106,7 @@ export class WdkClient {
   async getAccount(network: WdkNetwork, index = 0): Promise<WdkAccount> {
     if (this.wdk === null) await this.init();
     const blockchain = this.getBlockchain(network);
-    const account = await this.wdk!.getAccount(blockchain, index) as WdkAccountRaw;
+    const account = (await this.wdk!.getAccount(blockchain, index)) as WdkAccountRaw;
     const address = await account.getAddress();
     return {
       address,
@@ -142,13 +142,21 @@ export class WdkClient {
   }
 
   /** Send native transaction. Returns tx hash. */
-  async sendTransaction(network: WdkNetwork, params: { to: string; value: bigint; data?: string }, index = 0): Promise<{ hash: string }> {
+  async sendTransaction(
+    network: WdkNetwork,
+    params: { to: string; value: bigint; data?: string },
+    index = 0,
+  ): Promise<{ hash: string }> {
     const acc = await this.getAccount(network, index);
     return acc.sendTransaction({ to: params.to, value: params.value, data: params.data });
   }
 
   /** Transfer ERC20/TRC20 token. Token is contract address. */
-  async transfer(network: WdkNetwork, options: { to: string; token: string; amount: bigint }, index = 0): Promise<{ hash: string }> {
+  async transfer(
+    network: WdkNetwork,
+    options: { to: string; token: string; amount: bigint },
+    index = 0,
+  ): Promise<{ hash: string }> {
     const acc = await this.getAccount(network, index);
     return acc.transfer({ to: options.to, token: options.token, amount: options.amount });
   }

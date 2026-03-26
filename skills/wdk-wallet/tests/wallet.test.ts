@@ -99,9 +99,9 @@ describe('wdk-wallet', () => {
         expect(out.network).toBe('base');
         expect(out.balances).toHaveProperty('native');
         expect(out.lastUpdated).toBeDefined();
-      } catch (err: any) {
+      } catch (err: unknown) {
         // If the underlying RPC endpoint is unreachable in CI/local, skip this assertion.
-        const code = err?.code;
+        const code = err && typeof err === 'object' && 'code' in err ? (err as { code?: string }).code : undefined;
         if (code === 'ETIMEDOUT' || code === 'EHOSTUNREACH' || code === 'NETWORK_ERROR') {
           console.warn('[wdk-wallet tests] Skipping balance RPC assertion due to network error:', code);
           return;

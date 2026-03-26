@@ -34,7 +34,13 @@ export interface WaltWdkConfig {
     enabled?: boolean;
     dailyLimit?: { amount: string; currency: string };
     perTransactionLimit?: { amount: string; currency: string };
-    requireApproval?: { overAmount: string; notifyVia?: string; timeout?: string };
+    requireApproval?: {
+      overAmount: string;
+      notifyVia?: string;
+      timeout?: string;
+      /** file: write pending JSON under ~/.walt-wdk/pending-approvals (human sets status). console: log and fast-fail (default when omitted). */
+      approvalChannel?: 'file' | 'console';
+    };
     whitelist?: Array<{ address: string; name?: string; skipApproval?: boolean }>;
     blacklist?: string[];
   };

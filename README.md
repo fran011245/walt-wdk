@@ -1,5 +1,9 @@
 # WaltWDK — OpenClaw Skills Pack for Tether WDK
 
+[![CI](https://github.com/fran011245/walt-wdk/actions/workflows/ci.yml/badge.svg)](https://github.com/fran011245/walt-wdk/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/node/v/@tetherto/wdk?label=node&logo=node.js)](https://nodejs.org/)
+
 <!-- Built by Francisco + Walt — Human-AI collaboration in action 🤝🤖 -->
 
 OpenClaw skills that integrate the official [Tether Wallet Development Kit (WDK)](https://docs.wallet.tether.io) for the **Galactica WDK Edition** hackathon ($30k prize pool).
@@ -8,11 +12,11 @@ OpenClaw skills that integrate the official [Tether Wallet Development Kit (WDK)
 
 ## Skills
 
-| Skill | Description |
-|-------|-------------|
-| **wdk-wallet** | Create and manage WDK wallets: create, balance, list, export (with confirmation) |
-| **wdk-pay** | Send and receive USDT/USDC: send, payment request + QR, history, prices |
-| **wdk-agent-guard** | Guardrails for autonomous agents: daily/per-tx limits, whitelist/blacklist, approval flow (Telegram/Discord/Email) |
+| Skill               | Description                                                                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **wdk-wallet**      | Create and manage WDK wallets: create, balance, list, export (with confirmation)                                                             |
+| **wdk-pay**         | Send and receive USDT/USDC: send, payment request + QR, history, prices                                                                      |
+| **wdk-agent-guard** | Guardrails for autonomous agents: daily/per-tx limits, whitelist/blacklist, approval flow (file-based or console; see wdk-agent-guard SKILL) |
 
 ## Quick start
 
@@ -21,6 +25,7 @@ git clone https://github.com/fran011245/walt-wdk.git && cd walt-wdk
 npm install
 npm run build
 npm test
+npm run lint
 ```
 
 For install via OpenClaw/ClawHub and the full story, see [walt-wdk.com](https://walt-wdk.com).
@@ -81,13 +86,13 @@ WaltWDK talks to each chain through HTTP RPC endpoints. **Public endpoints are s
 
 ### Environment variables
 
-| Variable | Purpose |
-|----------|---------|
-| `WALT_WDK_RPC_ETHEREUM` | Ethereum JSON-RPC URL |
-| `WALT_WDK_RPC_BASE` | Base JSON-RPC URL |
-| `WALT_WDK_RPC_POLYGON` | Polygon JSON-RPC URL |
-| `WALT_WDK_TRON_FULL_HOST` | Tron full node host (default: `https://api.trongrid.io`) |
-| `WALT_WDK_TRON_PRO_API_KEY` | TronGrid API key (sent as `TRON-PRO-API-KEY`) |
+| Variable                    | Purpose                                                  |
+| --------------------------- | -------------------------------------------------------- |
+| `WALT_WDK_RPC_ETHEREUM`     | Ethereum JSON-RPC URL                                    |
+| `WALT_WDK_RPC_BASE`         | Base JSON-RPC URL                                        |
+| `WALT_WDK_RPC_POLYGON`      | Polygon JSON-RPC URL                                     |
+| `WALT_WDK_TRON_FULL_HOST`   | Tron full node host (default: `https://api.trongrid.io`) |
+| `WALT_WDK_TRON_PRO_API_KEY` | TronGrid API key (sent as `TRON-PRO-API-KEY`)            |
 
 ### `config.json` example
 
