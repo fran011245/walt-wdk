@@ -23,7 +23,7 @@
     "@tetherto/wdk": "^1.0.0-beta.6",
     "@tetherto/wdk-wallet-evm": "^1.0.0-beta.8",
     "@tetherto/wdk-wallet-tron": "^1.0.0-beta.4",
-    "tronweb": "^5.3.4",
+    "tronweb": "^6.2.2",
     "@noble/hashes": "^1.7.1"
   },
   "devDependencies": {
