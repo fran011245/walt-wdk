@@ -84,7 +84,7 @@ describe('wdk-pay', () => {
           amount: '1',
           token: 'USDC',
           fromWallet: 'nonexistent',
-        })
+        }),
       ).rejects.toThrow(/not found/);
     });
     it('throws when no wallet specified and no default', async () => {
@@ -93,7 +93,7 @@ describe('wdk-pay', () => {
           to: '0x0000000000000000000000000000000000000001',
           amount: '1',
           token: 'USDC',
-        })
+        }),
       ).rejects.toThrow(/No wallet specified/);
     });
   });

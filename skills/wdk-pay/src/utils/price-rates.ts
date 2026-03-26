@@ -32,7 +32,7 @@ export async function getPrices(): Promise<{ usdt: number; usdc: number }> {
     const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     const response = await fetch(
       'https://api.coingecko.com/api/v3/simple/price?ids=tether,usd-coin&vs_currencies=usd',
-      { headers: { 'Accept': 'application/json' }, signal: controller.signal }
+      { headers: { Accept: 'application/json' }, signal: controller.signal },
     );
     clearTimeout(timeoutId);
 
@@ -40,7 +40,7 @@ export async function getPrices(): Promise<{ usdt: number; usdc: number }> {
       throw new Error(`Price API error: ${response.status}`);
     }
 
-    const data = await response.json() as {
+    const data = (await response.json()) as {
       tether: { usd: number };
       'usd-coin': { usd: number };
     };

@@ -9,6 +9,7 @@ import path from 'path';
 import lockfile from 'proper-lockfile';
 import { Decimal } from 'decimal.js';
 import { loadConfig, getConfigDir } from '@walt-wdk/core';
+import { assertValidGuardConfig } from './validate-guard-config.js';
 
 export type GuardOperation = 'send' | 'cron' | 'swap';
 
@@ -81,6 +82,8 @@ export async function getDailySpent(currency: string): Promise<string> {
 
 /** Registra un gasto en el ledger del día (llamar después de un envío aprobado). Uses file lock to avoid race conditions. */
 export async function recordSpend(amount: string, currency: string): Promise<void> {
+  const cfg0 = await loadConfig();
+  if (cfg0.guard != null) assertValidGuardConfig(cfg0.guard);
   const lockPath = getLedgerPath();
   if (!existsSync(lockPath)) {
     await saveLedger({ date: today(), spent: {} });
@@ -113,6 +116,7 @@ export async function recordSpend(amount: string, currency: string): Promise<voi
  */
 export async function check(config: GuardCheck): Promise<GuardDecision> {
   const cfg = await loadConfig();
+  if (cfg.guard != null) assertValidGuardConfig(cfg.guard);
   const guard = cfg.guard;
 
   if (guard?.blacklist?.length && config.to) {

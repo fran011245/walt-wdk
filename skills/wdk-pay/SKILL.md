@@ -5,7 +5,7 @@ version: 1.0.0
 author: walt-wdk
 license: Apache-2.0
 openclaw:
-  requires: ["@tetherto/wdk"]
+  requires: ['@tetherto/wdk']
 ---
 
 # wdk-pay
@@ -77,12 +77,12 @@ Agent: USDT: $1.0000 | USDC: $0.9998
 
 ## Commands Reference
 
-| Command | Params | Description |
-|---------|--------|-------------|
-| `send` | `to`, `amount`, `token` (USDT \| USDC), `fromWallet?`, `memo?` | Send tokens to address |
-| `request` | `from` (wallet name), `amount`, `token` | Generate payment link + QR |
-| `history` | `wallet?`, `limit?` | List recent transactions (from local ledger) |
-| `prices` | — | Get current USDT/USDC prices in USD (for informed agent decisions) |
+| Command   | Params                                                         | Description                                                        |
+| --------- | -------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `send`    | `to`, `amount`, `token` (USDT \| USDC), `fromWallet?`, `memo?` | Send tokens to address                                             |
+| `request` | `from` (wallet name), `amount`, `token`                        | Generate payment link + QR                                         |
+| `history` | `wallet?`, `limit?`                                            | List recent transactions (from local ledger)                       |
+| `prices`  | —                                                              | Get current USDT/USDC prices in USD (for informed agent decisions) |
 
 ## Integration with wdk-wallet
 

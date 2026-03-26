@@ -35,20 +35,14 @@ function firstNonEmpty(...vals: (string | undefined)[]): string | undefined {
  * Env: WALT_WDK_RPC_ETHEREUM, WALT_WDK_RPC_BASE, WALT_WDK_RPC_POLYGON,
  * WALT_WDK_TRON_FULL_HOST, WALT_WDK_TRON_PRO_API_KEY.
  */
-export function resolveRpcProviders(
-  cfg: WaltWdkConfig,
-  env: NodeJS.ProcessEnv = process.env,
-): ResolvedRpcProviders {
+export function resolveRpcProviders(cfg: WaltWdkConfig, env: NodeJS.ProcessEnv = process.env): ResolvedRpcProviders {
   const rpc = cfg.rpc;
 
-  const ethereum =
-    firstNonEmpty(env.WALT_WDK_RPC_ETHEREUM, rpc?.ethereum) ?? DEFAULT_RPC.ethereum;
+  const ethereum = firstNonEmpty(env.WALT_WDK_RPC_ETHEREUM, rpc?.ethereum) ?? DEFAULT_RPC.ethereum;
   const base = firstNonEmpty(env.WALT_WDK_RPC_BASE, rpc?.base) ?? DEFAULT_RPC.base;
-  const polygon =
-    firstNonEmpty(env.WALT_WDK_RPC_POLYGON, rpc?.polygon) ?? DEFAULT_RPC.polygon;
+  const polygon = firstNonEmpty(env.WALT_WDK_RPC_POLYGON, rpc?.polygon) ?? DEFAULT_RPC.polygon;
 
-  const tronFullHost =
-    firstNonEmpty(env.WALT_WDK_TRON_FULL_HOST, rpc?.tron?.fullHost) ?? DEFAULT_RPC.tron;
+  const tronFullHost = firstNonEmpty(env.WALT_WDK_TRON_FULL_HOST, rpc?.tron?.fullHost) ?? DEFAULT_RPC.tron;
   const tronApiKey = firstNonEmpty(env.WALT_WDK_TRON_PRO_API_KEY, rpc?.tron?.apiKey);
 
   const tron: ResolvedTronProvider =

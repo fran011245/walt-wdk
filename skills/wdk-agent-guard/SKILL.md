@@ -30,11 +30,10 @@ En `~/.walt-wdk/config.json` (o vía OpenClaw config):
     "requireApproval": {
       "overAmount": "200",
       "notifyVia": "telegram",
-      "timeout": "5m"
+      "timeout": "5m",
+      "approvalChannel": "file"
     },
-    "whitelist": [
-      { "address": "0x1234...", "name": "partner", "skipApproval": true }
-    ],
+    "whitelist": [{ "address": "0x1234...", "name": "partner", "skipApproval": true }],
     "blacklist": ["0xbad..."]
   }
 }
@@ -63,14 +62,14 @@ Agent: getAuditLog(10) → list of DecisionEntry
 
 ## Commands Reference
 
-| Command | Params | Description |
-|---------|--------|-------------|
-| `checkLimit` | `operation`, `amount`, `currency`, `to?`, `fromWallet` | Returns GuardDecision (allowed, requiresApproval, remainingDaily, etc.) |
-| `requestApproval` | `operation`, `amount`, `currency`, `to?`, `fromWallet`, `reason?` | Notifies, waits for timeout, logs decision |
-| `logDecision` | `DecisionEntry` | Appends a decision to the audit log |
-| `getAuditLog` | `limit?` | Returns recent decisions |
-| `getDailySpent` | `currency` | Returns total spent today for currency |
-| `recordSpend` | `amount`, `currency` | Records a spend (call after a send) |
+| Command           | Params                                                            | Description                                                             |
+| ----------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `checkLimit`      | `operation`, `amount`, `currency`, `to?`, `fromWallet`            | Returns GuardDecision (allowed, requiresApproval, remainingDaily, etc.) |
+| `requestApproval` | `operation`, `amount`, `currency`, `to?`, `fromWallet`, `reason?` | Notifies, waits for timeout, logs decision                              |
+| `logDecision`     | `DecisionEntry`                                                   | Appends a decision to the audit log                                     |
+| `getAuditLog`     | `limit?`                                                          | Returns recent decisions                                                |
+| `getDailySpent`   | `currency`                                                        | Returns total spent today for currency                                  |
+| `recordSpend`     | `amount`, `currency`                                              | Records a spend (call after a send)                                     |
 
 ## Integration with wdk-pay
 
@@ -78,6 +77,7 @@ Before sending, wdk-pay (or the agent) can call `checkLimit`. If `allowed` is fa
 
 ## Security
 
+- **`approvalChannel`:** use `"file"` for real human approval (edit pending JSON under `pending-approvals/`). Omit or use `"console"` only for dev/CI (fast reject after log).
 - Blacklist is checked first; whitelist can skip approval for trusted addresses.
 - Daily and per-transaction limits use the same config and a local ledger (`~/.walt-wdk/guard-ledger.json`).
 - All decisions are logged to `~/.walt-wdk/guard-audit.jsonl`.

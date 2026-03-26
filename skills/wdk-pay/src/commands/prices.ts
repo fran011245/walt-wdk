@@ -17,7 +17,7 @@ export interface PricesOutput {
  */
 export async function prices(): Promise<PricesOutput> {
   const { usdt, usdc } = await getPrices();
-  
+
   return {
     usdt: formatPrice(usdt),
     usdc: formatPrice(usdc),

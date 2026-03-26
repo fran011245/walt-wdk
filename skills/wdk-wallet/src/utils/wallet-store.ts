@@ -15,9 +15,7 @@ const SECRETS_SUBDIR = 'secrets';
 /** Wallet name: alphanumeric, dash, underscore; 1–64 chars. Prevents path traversal. */
 function assertValidWalletName(name: string): void {
   if (!/^[a-zA-Z0-9_-]{1,64}$/.test(name)) {
-    throw new Error(
-      `Invalid wallet name: "${name}". Use only letters, numbers, dash and underscore (1–64 chars).`,
-    );
+    throw new Error(`Invalid wallet name: "${name}". Use only letters, numbers, dash and underscore (1–64 chars).`);
   }
 }
 

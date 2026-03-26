@@ -82,8 +82,9 @@ export async function send(input: SendInput): Promise<SendOutput> {
           throw new Error(`Send cancelled: ${approval.reason ?? 'approval denied or timeout'}`);
         }
       }
-    } catch (e: any) {
-      if (e?.code === 'ERR_MODULE_NOT_FOUND' || e?.code === 'MODULE_NOT_FOUND') {
+    } catch (e: unknown) {
+      const code = e && typeof e === 'object' && 'code' in e ? (e as { code?: string }).code : undefined;
+      if (code === 'ERR_MODULE_NOT_FOUND' || code === 'MODULE_NOT_FOUND') {
         throw new Error(
           'Guard is enabled but @walt-wdk/wdk-agent-guard is not installed. Install it or set guard.enabled=false in config.',
         );
@@ -154,8 +155,9 @@ export async function send(input: SendInput): Promise<SendOutput> {
       if (typeof guard.recordSpend === 'function') {
         await guard.recordSpend(input.amount, token);
       }
-    } catch (e: any) {
-      if (e?.code !== 'ERR_MODULE_NOT_FOUND' && e?.code !== 'MODULE_NOT_FOUND') {
+    } catch (e: unknown) {
+      const code = e && typeof e === 'object' && 'code' in e ? (e as { code?: string }).code : undefined;
+      if (code !== 'ERR_MODULE_NOT_FOUND' && code !== 'MODULE_NOT_FOUND') {
         throw e;
       }
     }

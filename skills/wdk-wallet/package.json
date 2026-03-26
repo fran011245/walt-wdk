@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@walt-wdk/core": "file:../../src/core",
@@ -17,7 +18,8 @@
   "devDependencies": {
     "@types/qrcode": "^1.5.5",
     "typescript": "^5.6.3",
-    "vitest": "^2.1.6"
+    "vitest": "^2.1.6",
+    "@vitest/coverage-v8": "^2.1.6"
   },
   "engines": {
     "node": ">=18"

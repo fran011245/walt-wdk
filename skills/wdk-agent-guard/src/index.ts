@@ -8,8 +8,11 @@ export const name = 'wdk-agent-guard';
 export { check, getDailySpent, recordSpend } from './guard-engine.js';
 export type { GuardCheck, GuardDecision, GuardOperation } from './guard-engine.js';
 
-export { notify, waitForApproval, parseTimeout } from './approval-flow.js';
-export type { ApprovalRequest, ApprovalResult } from './approval-flow.js';
+export { waitForApproval, parseTimeout } from './approval-flow.js';
+export type { ApprovalRequest, ApprovalResult } from './approval-types.js';
+
+export { setApprovalLogger, logApproval } from './approval-logging.js';
+export type { ApprovalLogger, ApprovalLogLevel } from './approval-logging.js';
 
 export { checkLimit } from './commands/check-limit.js';
 export type { CheckLimitInput } from './commands/check-limit.js';
