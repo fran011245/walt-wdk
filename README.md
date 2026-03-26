@@ -1,14 +1,31 @@
-# WaltWDK — OpenClaw Skills Pack for Tether WDK
+# WaltWDK — OpenClaw skills + Tether WDK
 
 [![CI](https://github.com/fran011245/walt-wdk/actions/workflows/ci.yml/badge.svg)](https://github.com/fran011245/walt-wdk/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Node](https://img.shields.io/node/v/@tetherto/wdk?label=node&logo=node.js)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Node](https://img.shields.io/badge/Node-%3E%3D%2018-brightgreen)](https://nodejs.org/)
 
 <!-- Built by Francisco + Walt — Human-AI collaboration in action 🤝🤖 -->
 
-OpenClaw skills that integrate the official [Tether Wallet Development Kit (WDK)](https://docs.wallet.tether.io) for the **Galactica WDK Edition** hackathon ($30k prize pool).
+**Wallet-oriented building blocks for AI agents — non-custodial, multi-chain, and shaped with production habits (tests, strict TypeScript, CI) — delivered as [OpenClaw](https://github.com/openclaw/openclaw) skills on top of the official [Tether Wallet Development Kit (WDK)](https://docs.wallet.tether.io).**
 
-**Project site:** [walt-wdk.com](https://walt-wdk.com) · **License:** Apache-2.0
+Born from the **Galactica WDK Edition** hackathon ($30k prize pool). **Site:** [walt-wdk.com](https://walt-wdk.com) · **License:** Apache-2.0
+
+## The Story
+
+What happens when you give an AI agent its own wallet?
+
+WaltWDK started as a hackathon project built through intense human–AI collaboration. The goal was to show that agents can work with real value (USDT/USDC) with guardrails, optional approvals, and an audit trail — not blind key exposure.
+
+It remains **open-source infrastructure** for experiments and integrations; it is **not** a substitute for a full security audit if you treat it as production custody for third parties.
+
+## Built with
+
+- **TypeScript** — `strict` mode, workspace-wide `typecheck`
+- **Tether WDK** — official `@tetherto/wdk` stack (EVM + Tron wallets)
+- **OpenClaw** — skills packaging for agents (OpenClaw ≥ 2.0)
+- **Vitest** — 50+ tests across `@walt-wdk/core` and skills workspaces
+- **GitHub Actions** — CI on every PR (`build`, `typecheck`, `lint`, tests, coverage)
+- **ESLint + Prettier** — `npm run lint` (ESLint) and `npm run format:check` (Prettier)
 
 ## Skills
 
@@ -18,17 +35,38 @@ OpenClaw skills that integrate the official [Tether Wallet Development Kit (WDK)
 | **wdk-pay**         | Send and receive USDT/USDC: send, payment request + QR, history, prices                                                                      |
 | **wdk-agent-guard** | Guardrails for autonomous agents: daily/per-tx limits, whitelist/blacklist, approval flow (file-based or console; see wdk-agent-guard SKILL) |
 
+## Architecture
+
+Three peer **OpenClaw skills** share **`@walt-wdk/core`** (WDK client, config, security). Use **wdk-agent-guard** before or around sensitive operations (e.g. sends); it is not a mandatory linear stage after pay.
+
+```
+┌──────────────┐   ┌──────────────┐   ┌──────────────────┐
+│ wdk-wallet   │   │  wdk-pay     │   │ wdk-agent-guard   │
+│ wallets      │   │ send/receive │   │ limits, approve   │
+│ list, export │   │ QR, history  │   │ audit trail       │
+└──────┬───────┘   └──────┬───────┘   └─────────┬────────┘
+       │                  │                      │
+       └──────────────────┼──────────────────────┘
+                          ▼
+               ┌─────────────────────┐
+               │   @walt-wdk/core    │
+               │ WDK, config, crypto │
+               └─────────────────────┘
+```
+
 ## Quick start
 
 ```bash
 git clone https://github.com/fran011245/walt-wdk.git && cd walt-wdk
-npm install
+npm ci
 npm run build
-npm test
-npm run lint
+npm test              # 50+ tests (all workspaces)
+npm run lint          # ESLint
+npm run typecheck     # strict TypeScript
+npm run format:check  # Prettier
 ```
 
-For install via OpenClaw/ClawHub and the full story, see [walt-wdk.com](https://walt-wdk.com).
+Install via OpenClaw / ClawHub and the fuller walkthrough: [walt-wdk.com](https://walt-wdk.com).
 
 ## Usage examples
 
@@ -39,7 +77,7 @@ Create a wallet named `business` on Base; seed is encrypted and stored under `~/
 Query native + USDT/USDC balance for a wallet by name.
 
 **Send USDC (wdk-pay)**  
-Send 50 USDC to an address from a stored wallet; optionally run **wdk-agent-guard** check first.
+Send USDC to an address from a stored wallet; optionally run **wdk-agent-guard** first.
 
 **Payment request (wdk-pay)**  
 Generate a payment link and QR so someone can pay you USDT/USDC.
@@ -68,12 +106,14 @@ walt-wdk/
 
 ## Docs
 
-For installation, architecture, and hackathon details, see [walt-wdk.com](https://walt-wdk.com).
+Installation, architecture, and hackathon narrative: [walt-wdk.com](https://walt-wdk.com).
 
 ## Requirements
 
 - Node.js >= 18
 - OpenClaw >= 2.0 (for using skills in an agent)
+
+Contributing workflow and layout: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## RPC providers (rate limits)
 
@@ -115,16 +155,27 @@ Stored under `~/.walt-wdk/config.json` (or `WALT_WDK_CONFIG_DIR`). Do **not** co
 
 ### Agents and automation
 
-If you (or an agent) install or update this repo from git, run `npm install` and `npm run build` so `@walt-wdk/core` matches the workspace.
+If you (or an agent) install or update this repo from git, run `npm ci` (or `npm install`) and `npm run build` so `@walt-wdk/core` matches the workspace.
 
 **Tron sends (TRC20):** set `WALT_WDK_TRON_PRO_API_KEY` in the **host environment** (recommended for CI/agents) or add `rpc.tron.apiKey` to `~/.walt-wdk/config.json`. Restart the agent or Node process after changing env vars so the new value is picked up.
 
 **Secrets:** do not commit API keys, paste them into public issues/PRs, or rely on long-lived chat logs if you can use a secret store or local env instead. See the [RPC providers](#rpc-providers-rate-limits) table above for all override variables.
 
-## Security and disclaimer
+## Security highlights
 
-This software is a hackathon prototype and **has not undergone an independent third-party security audit**. Use at your own risk. For production use, a professional security audit is recommended. To report vulnerabilities, see [SECURITY.md](SECURITY.md).
+- **EIP-55** checks for mixed-case EVM addresses (checksum)
+- **AES-256-GCM** for encrypted seed material (see `src/core/security-utils.ts`)
+- **Configurable guardrails** — daily and per-tx limits, allow/deny lists
+- **Approval flows** — file-based (recommended) or console-oriented paths for sensitive operations (`wdk-agent-guard`)
+- **Sensitive buffers zeroed** where the core client manages seed material (`wdk-client`)
+- **Audit logging** — guard decisions can be recorded for review
+
+**Disclaimer:** This is a **hackathon-origin** codebase and **has not** undergone an independent third-party security audit. Use at your own risk. For production use affecting others’ funds, engage a professional audit. Report issues responsibly: [SECURITY.md](SECURITY.md).
 
 ## Hackathon
 
-Built for **Galactica WDK Edition (Tether)**. See [walt-wdk.com](https://walt-wdk.com) for submission and demo.
+Built for **Galactica WDK Edition (Tether)**. Submission and demo: [walt-wdk.com](https://walt-wdk.com).
+
+---
+
+Built with human–AI collaboration (Francisco + Walt).
