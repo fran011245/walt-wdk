@@ -19,9 +19,9 @@
   "devDependencies": {
     "@types/qrcode": "^1.5.5",
     "@walt-wdk/wdk-wallet": "file:../wdk-wallet",
-    "typescript": "^5.6.3",
-    "vitest": "^2.1.6",
-    "@vitest/coverage-v8": "^2.1.6",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.1",
+    "@vitest/coverage-v8": "^4.1.1",
     "@walt-wdk/wdk-agent-guard": "file:../wdk-agent-guard"
   },
   "engines": {

@@ -28,12 +28,12 @@
     "skills/wdk-agent-guard"
   ],
   "devDependencies": {
-    "typescript": "^5.6.3",
-    "vitest": "^2.1.6",
-    "@eslint/js": "^9.16.0",
-    "@vitest/coverage-v8": "^2.1.6",
-    "eslint": "^9.16.0",
-    "globals": "^15.13.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.1",
+    "@eslint/js": "^10.0.1",
+    "@vitest/coverage-v8": "^4.1.1",
+    "eslint": "^10.1.0",
+    "globals": "^17.4.0",
     "prettier": "^3.4.2",
     "typescript-eslint": "^8.17.0"
   },
