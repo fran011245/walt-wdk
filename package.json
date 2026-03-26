@@ -28,7 +28,7 @@
     "skills/wdk-agent-guard"
   ],
   "devDependencies": {
-    "typescript": "^5.6.3",
+    "typescript": "^6.0.2",
     "vitest": "^2.1.6",
     "@eslint/js": "^9.16.0",
     "@vitest/coverage-v8": "^2.1.6",
