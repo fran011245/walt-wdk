@@ -21,7 +21,7 @@
     "@walt-wdk/wdk-wallet": "file:../wdk-wallet",
     "typescript": "^5.6.3",
     "vitest": "^2.1.6",
-    "@vitest/coverage-v8": "^2.1.6",
+    "@vitest/coverage-v8": "^4.1.1",
     "@walt-wdk/wdk-agent-guard": "file:../wdk-agent-guard"
   },
   "engines": {
