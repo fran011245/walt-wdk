@@ -1,7 +1,14 @@
+# Agrupa actualizaciones en pocos PRs; revisión semanal y como mucho 2 PRs abiertos a la vez.
+# See: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 2
+    groups:
+      development:
+        dependency-type: development
+      production:
+        dependency-type: production
