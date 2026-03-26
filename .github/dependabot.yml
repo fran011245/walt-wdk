@@ -1,7 +1,17 @@
+# Bundles updates into fewer PRs; runs monthly with a small open cap.
+# See: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
+      interval: monthly
+    # Cap simultaneous Dependabot PRs so the queue stays readable.
+    open-pull-requests-limit: 2
+    groups:
+      # One PR for all devDependencies (eslint, vitest, typescript, etc.).
+      development:
+        dependency-type: development
+      # One PR for runtime deps (@tetherto/*, tronweb, etc.).
+      production:
+        dependency-type: production
