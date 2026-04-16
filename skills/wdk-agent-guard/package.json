@@ -18,9 +18,9 @@
     "decimal.js": "^10.4.3"
   },
   "devDependencies": {
-    "typescript": "^5.6.3",
-    "vitest": "^2.1.6",
-    "@vitest/coverage-v8": "^2.1.6"
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4",
+    "@vitest/coverage-v8": "^4.1.4"
   },
   "engines": {
     "node": ">=18"
